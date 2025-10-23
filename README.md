@@ -100,10 +100,8 @@ Personas entre 18 y 60 años, con acceso a dispositivos móviles, que buscan con
 | Herramienta | Descripción |
 |--------------|-------------|
 | <img src="https://upload.wikimedia.org/wikipedia/commons/7/74/Kotlin_Icon.png" width="30"/> **Kotlin** | Lenguaje principal para el desarrollo Android. |
-| <img src="https://developer.android.com/static/images/compose/compose-icon.svg" width="30"/> **Jetpack Compose** | Framework moderno para interfaces declarativas. |
+| <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/jetpackcompose/jetpackcompose-original.svg" width="30"/> **Jetpack Compose** | Framework moderno para interfaces declarativas. |
 | <img src="https://upload.wikimedia.org/wikipedia/commons/3/33/Figma-logo.svg" width="30"/> **Figma** | Diseño y prototipado UI/UX. |
 | <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" width="30"/> **GitHub** | Control de versiones y colaboración. |
-
----
 
 
