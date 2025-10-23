@@ -86,3 +86,24 @@ Personas entre 18 y 60 años, con acceso a dispositivos móviles, que buscan con
 **Para:** mantener hábitos saludables y no olvidar mis citas  
 **Prioridad:** Baja  
 **Criterio de aceptación:** Se muestra un bloque “Consejo del día” en la pantalla principal.
+
+
+## 🎨 Prototipo en Figma
+
+👉 [**Ver diseño interactivo en Figma**](https://www.figma.com/make/DJzsTLblD6YXjbmJ5kXgoq/MediTurn-Mobile-Design?fullscreen=1)
+
+
+
+
+## 🛠️ Herramientas y Tecnologías
+
+| Herramienta | Descripción |
+|--------------|-------------|
+| <img src="https://upload.wikimedia.org/wikipedia/commons/7/74/Kotlin_Icon.png" width="30"/> **Kotlin** | Lenguaje principal para el desarrollo Android. |
+| <img src="https://developer.android.com/static/images/compose/compose-icon.svg" width="30"/> **Jetpack Compose** | Framework moderno para interfaces declarativas. |
+| <img src="https://upload.wikimedia.org/wikipedia/commons/3/33/Figma-logo.svg" width="30"/> **Figma** | Diseño y prototipado UI/UX. |
+| <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" width="30"/> **GitHub** | Control de versiones y colaboración. |
+
+---
+
+
