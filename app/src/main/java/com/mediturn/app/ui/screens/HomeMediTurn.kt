@@ -10,7 +10,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.CalendarToday
-import androidx.compose.material.icons.filled.LocalHospital
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -27,33 +26,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.mediturn.app.R
+import com.mediturn.app.ui.components.BottomNavBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeMediTurn(navController: NavController) {
     Scaffold(
-        bottomBar = {
-            NavigationBar(containerColor = Color.White) {
-                NavigationBarItem(
-                    selected = true,
-                    onClick = {},
-                    icon = { Icon(Icons.Default.Search, contentDescription = "Inicio") },
-                    label = { Text("Inicio") }
-                )
-                NavigationBarItem(
-                    selected = false,
-                    onClick = {},
-                    icon = { Icon(Icons.Default.CalendarToday, contentDescription = "Citas") },
-                    label = { Text("Citas") }
-                )
-                NavigationBarItem(
-                    selected = false,
-                    onClick = {},
-                    icon = { Icon(Icons.Default.AccountCircle, contentDescription = "Perfil") },
-                    label = { Text("Perfil") }
-                )
-            }
-        }
+        bottomBar = { BottomNavBar(navController, "home") }
     ) { padding ->
         Column(
             modifier = Modifier
@@ -62,7 +41,7 @@ fun HomeMediTurn(navController: NavController) {
                 .verticalScroll(rememberScrollState())
                 .background(Color(0xFFF6F9FC))
         ) {
-            // 🔷 Encabezado con fondo curvado y gradiente
+            // 🔷 Encabezado con gradiente
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -114,7 +93,7 @@ fun HomeMediTurn(navController: NavController) {
                         placeholder = { Text("Buscar médico o especialidad...") },
                         leadingIcon = {
                             Icon(
-                                imageVector = Icons.Default.Search,
+                                Icons.Default.Search,
                                 contentDescription = null,
                                 tint = Color(0xFF007AFF)
                             )
@@ -133,9 +112,9 @@ fun HomeMediTurn(navController: NavController) {
                 }
             }
 
-            Spacer(modifier = Modifier.height(28.dp))
+            Spacer(Modifier.height(28.dp))
 
-            // 🔹 Botones principales (Buscar Médicos / Mis Citas)
+            // 🔹 Botones principales
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -143,25 +122,20 @@ fun HomeMediTurn(navController: NavController) {
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Box(modifier = Modifier.weight(1f)) {
-                    // ✅ Icono vectorial en lugar de drawable
-                    HomeMainButtonIcon(
-                        icon = Icons.Default.LocalHospital,
-                        title = "Buscar Médicos",
-                        onClick = { navController.navigate("doctors") }
-                    )
+                    HomeMainButtonIcon(Icons.Default.Search, "Buscar Médicos") {
+                        navController.navigate("doctors")
+                    }
                 }
                 Box(modifier = Modifier.weight(1f)) {
-                    HomeMainButtonIcon(
-                        icon = Icons.Default.CalendarToday,
-                        title = "Mis Citas",
-                        onClick = {}
-                    )
+                    HomeMainButtonIcon(Icons.Default.CalendarToday, "Mis Citas") {
+                        navController.navigate("citas")
+                    }
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(Modifier.height(24.dp))
 
-            // 🔹 Especialidades centradas
+            // 🔹 Especialidades
             Text(
                 text = "Especialidades",
                 fontWeight = FontWeight.Bold,
@@ -169,38 +143,31 @@ fun HomeMediTurn(navController: NavController) {
                 modifier = Modifier.padding(horizontal = 24.dp)
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(Modifier.height(12.dp))
 
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
+            FlowRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                FlowRow(
-                    modifier = Modifier
-                        .padding(horizontal = 24.dp)
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    val specialties = listOf(
-                        "Cardiología" to R.drawable.ic_heart,
-                        "Neurología" to R.drawable.ic_brain,
-                        "Oftalmología" to R.drawable.ic_eye,
-                        "Medicina General" to R.drawable.ic_stethoscope,
-                        "Pediatría" to R.drawable.ic_baby,
-                        "Farmacología" to R.drawable.ic_pill
-                    )
-
-                    specialties.forEach { (name, icon) ->
-                        SpecialtyCard(name, icon)
-                    }
+                val specialties = listOf(
+                    "Cardiología" to R.drawable.ic_heart,
+                    "Neurología" to R.drawable.ic_brain,
+                    "Oftalmología" to R.drawable.ic_eye,
+                    "Medicina General" to R.drawable.ic_stethoscope,
+                    "Pediatría" to R.drawable.ic_baby,
+                    "Farmacología" to R.drawable.ic_pill
+                )
+                specialties.forEach { (name, icon) ->
+                    SpecialtyCard(name, icon)
                 }
             }
 
-            Spacer(modifier = Modifier.height(28.dp))
-
+            Spacer(Modifier.height(28.dp))
             TipCard()
-            Spacer(modifier = Modifier.height(36.dp))
+            Spacer(Modifier.height(36.dp))
         }
     }
 }
@@ -214,7 +181,7 @@ fun HomeMainButtonIcon(
     Card(
         onClick = onClick,
         shape = RoundedCornerShape(20.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 10.dp),
+        elevation = CardDefaults.cardElevation(8.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         modifier = Modifier
             .height(100.dp)
@@ -226,14 +193,14 @@ fun HomeMainButtonIcon(
             verticalArrangement = Arrangement.Center
         ) {
             Icon(
-                imageVector = icon,
+                icon,
                 contentDescription = title,
                 tint = Color(0xFF00A88B),
                 modifier = Modifier.size(36.dp)
             )
             Spacer(Modifier.height(6.dp))
             Text(
-                text = title,
+                title,
                 fontWeight = FontWeight.Medium,
                 fontSize = 14.sp,
                 color = Color(0xFF2E2E2E)
@@ -257,8 +224,7 @@ fun SpecialtyCard(name: String, icon: Int) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Image(
                 painter = painterResource(id = icon),
