@@ -12,11 +12,12 @@ import com.mediturn.app.ui.screens.DoctorsScreen
 import com.mediturn.app.ui.screens.DoctorDetailScreen
 import com.mediturn.app.ui.screens.MisCitas
 import com.mediturn.app.ui.screens.Perfil
+import com.mediturn.app.ui.screens.DoctorsScreen
 
 //Navegacion
 @Composable
 fun MediTurnNav() {
-    val navController= rememberNavController();
+    val navController= rememberNavController()
     NavHost(
         navController=navController,
         startDestination = "home" //Inicio de la app
