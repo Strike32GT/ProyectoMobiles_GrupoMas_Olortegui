@@ -88,6 +88,15 @@ Personas entre 18 y 60 años, con acceso a dispositivos móviles, que buscan con
 **Criterio de aceptación:** Se muestra un bloque “Consejo del día” en la pantalla principal.
 
 
+
+## 🎬 Dia 2: demostracion del Proyecto
+
+[![Ver video en YouTube](https://img.youtube.com/vi/bxe31nS2u7Y/hqdefault.jpg)](https://www.youtube.com/watch?v=bxe31nS2u7Y)
+
+> 🎥 **Demo de MediTurn:** navegación principal.
+
+
+
 ## 🎨 Prototipo en Figma
 
 👉 [**Ver diseño interactivo en Figma**](https://www.figma.com/make/DJzsTLblD6YXjbmJ5kXgoq/MediTurn-Mobile-Design?fullscreen=1)
