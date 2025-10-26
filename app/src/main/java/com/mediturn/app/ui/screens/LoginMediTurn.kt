@@ -23,8 +23,8 @@ fun LoginMediTurn(navController: NavController) {
         horizontalAlignment = Alignment.CenterHorizontally
     ){
         Text("Bienvenido al Login MediTurns")
-        Button(onClick = {navController.navigate("home")}) {
-            Text("Ver Inicio")
+        Button(onClick = {navController.navigate("citas")}) {
+            Text("Ve a Citas")
         }
     }
 }
