@@ -5,10 +5,19 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Call
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Place
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.text.font.*
 import androidx.compose.ui.unit.*
@@ -25,10 +34,21 @@ fun MisCitas(navController: NavController) {
     Scaffold (
         topBar = {
             TopAppBar(
-                title = { Text("Mis citas", fontSize = 20.sp, fontWeight = FontWeight.Bold) },
+                title = {
+                    Text(
+                        text = "Mis Citas",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFF007AFF),
-                    titleContentColor = Color.White
+                    containerColor = Color.Transparent
+                ),
+                modifier = Modifier.background(
+                    Brush.linearGradient(
+                        listOf(Color(0xFF007AFF), Color(0xFF00CBA9))
+                    )
                 )
             )
         },
@@ -51,29 +71,29 @@ fun MisCitas(navController: NavController) {
                         .fillMaxSize()
                         .background(Color(0xFFF5F6FA))
                 ){
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(8.dp)
-                            .background(Color.White, RoundedCornerShape(16.dp)),
-                        horizontalArrangement = Arrangement.SpaceEvenly
+                    TabRow(
+                        selectedTabIndex = selectTab,
+                        containerColor = Color.White,
+                        contentColor = Color(0xFF00CBA9),
+                        indicator = {},
+                        divider = {}
                     ){
                         tabs.forEachIndexed { index, title ->
-                            val selected = selectTab == index
-                            TextButton(
-                                onClick = {selectTab = index},
-                                colors = ButtonDefaults.textButtonColors(
-                                    containerColor = if (selected) Color(0xFF00CBA9) else Color.Transparent,
-                                    contentColor = if(selected) Color.White else Color.Gray
-                                ),
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .padding(4.dp)
-                            ) {
-                                Text(title, fontWeight = FontWeight.SemiBold)
-                            }
+                            Tab(
+                                selected = selectTab == index,
+                                onClick = { selectTab = index },
+                                text = {
+                                    Text(
+                                        text = title,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = if(selectTab == index)
+                                        Color(0xFF00CBA9) else Color.Gray
+                                        )
+                                       }
+                            )
                         }
                     }
+
                     when (selectTab){
                         0 ->CitasProximas()
                         1->CitasHistorial()
@@ -106,7 +126,8 @@ fun CitasHistorial(){
             "Medicina General",
             "mar, 14 oct",
             "2:00 PM",
-            "Completada")
+            "Completada"
+        )
     )
 
     LazyColumn(
@@ -114,7 +135,7 @@ fun CitasHistorial(){
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ){
         items(citas){ cita ->
-            CitaCard(cita,historial=true)
+            CitaCard(cita, historial=true)
         }
     }
 }
@@ -122,107 +143,159 @@ fun CitasHistorial(){
 
 
 
-        @Composable
-        fun CitaCard(cita: Cita, historial: Boolean = false) {
-            val colorTipo = when (cita.tipo){
-                "Teleconsulta" -> Color(0xFF007AFF)
-                "Presencial" -> Color(0xFF00CBA9)
-                "Completada" -> Color.Gray
-                else -> Color(0xFF007AFF)
+@Composable
+fun CitaCard(cita: Cita, historial: Boolean = false) {
+    val colorTipo = when (cita.tipo){
+        "Teleconsulta" -> Color(0xFF007AFF)
+        "Presencial" -> Color(0xFF00CBA9)
+        "Completada" -> Color.Gray
+        else -> Color(0xFF007AFF)
+    }
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight(),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Row(modifier = Modifier.padding(12.dp)) {
+
+            Box(
+                modifier = Modifier
+                    .size(60.dp)
+                    .clip(CircleShape)
+                    .background(Color(0xFFEAEAEA)),
+                contentAlignment = Alignment.Center
+            ){
+                Icon(
+                    imageVector = Icons.Default.Person,
+                    contentDescription = "Profile",
+                    tint = Color.Gray,
+                    modifier = Modifier.size(35.dp)
+                )
             }
 
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                shape = RoundedCornerShape(16.dp)
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
+            Spacer(modifier = Modifier.width(12.dp))
 
-                    Text(
-                        text = cita.doctor,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black
+            Column(modifier = Modifier.weight(1f)){
+                Text(
+                    text = cita.doctor,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
+                Text(
+                    text = cita.especialidad,
+                    color = colorTipo,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 15.sp
+                )
+
+                Row(verticalAlignment = Alignment.CenterVertically){
+                    Icon(
+                        imageVector = Icons.Default.DateRange,
+                        contentDescription = null,
+                        tint = Color.Gray,
+                        modifier = Modifier.size(14.dp)
                     )
 
+                    Spacer(modifier = Modifier.width(4.dp))
 
                     Text(
-                        text = cita.especialidad,
-                        color = colorTipo,
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 15.sp
-                    )
-
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-
-                    Text(
-                        text = "${cita.fecha}  |  ${cita.hora}",
+                        cita.fecha,
                         color = Color.Gray,
-                        fontSize = 14.sp
+                        fontSize = 13.sp
                     )
 
+                    Spacer(modifier = Modifier.width(8.dp))
 
-                    Spacer(modifier = Modifier.height(10.dp))
+                    Icon(
+                        imageVector = Icons.Default.Home,
+                        contentDescription = null,
+                        tint = Color.Gray,
+                        modifier = Modifier.size(14.dp)
+                    )
 
-                    Box(
+                    Spacer(modifier = Modifier.width(4.dp))
+
+                    Text(
+                        cita.hora, color = Color.Gray, fontSize = 13.sp
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(2.dp))
+
+                Row(verticalAlignment = Alignment.CenterVertically){
+                    val icon= if(cita.tipo == "Teleconsulta")
+                        Icons.Default.Call
+                    else
+                        Icons.Default.Place
+
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        tint=colorTipo,
+                        modifier = Modifier.size(14.dp)
+                    )
+
+                    Spacer(modifier = Modifier.width(4.dp))
+
+                    Text(
+                        text = cita.tipo,
+                        color = colorTipo,
+                        fontSize = 13.sp,
                         modifier = Modifier
                             .background(colorTipo.copy(alpha = 0.1f), RoundedCornerShape(12.dp))
-                            .padding(horizontal = 10.dp, vertical = 5.dp)
-                    ){
+                            .padding(horizontal = 8.dp, vertical = 2.dp)
+                    )
+                }
+            }
+
+            if (!historial) {
+                Column(
+                    horizontalAlignment = Alignment.End,
+                    verticalArrangement = Arrangement.spacedBy(6.dp)){
+
+                    Button(
+                        onClick = {/**/},
+                        colors = ButtonDefaults.buttonColors(containerColor = colorTipo),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier
+                            .height(36.dp)
+                            .width(85.dp)
+                    ) {
                         Text(
-                            text = cita.tipo,
-                            color = colorTipo,
-                            fontSize = 13.sp,
+                            "Unirse",
+                            fontSize = 14.sp,
                             fontWeight = FontWeight.Medium
                         )
                     }
-
-
-                    if (!historial) {
-                        Spacer(modifier = Modifier.height(14.dp))
-
-
-                        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)){
-                            Button(
-                                onClick = {/**/},
-                                colors = ButtonDefaults.buttonColors(containerColor = colorTipo),
-                                shape = RoundedCornerShape(30.dp),
-                                modifier = Modifier.height(36.dp)
-                            ) {
-                                Text(
-                                    text = "unirse",
-                                    fontWeight = FontWeight.Medium,
-                                    fontSize = 14.sp
-                                )
-                            }
-
-                            OutlinedButton(
-                                onClick = {/**/},
-                                shape = RoundedCornerShape(30.dp),
-                                border = BorderStroke(1.dp,Color(0xFFB0B0B0)),
-                                modifier = Modifier.height(36.dp)
-                            ) {
-                                Text(
-                                    "mensaje",
-                                    color = Color.Black,
-                                    fontSize = 14.sp
-                                )
-                            }
-                        }
-                    } else {
-                        Spacer(modifier = Modifier.height(10.dp))
-                        Text(
-                            text = "Completada",
-                            color = colorTipo,
-                            fontWeight = FontWeight.Bold
-                        )
+                    OutlinedButton(
+                        onClick = {/**/},
+                        shape = RoundedCornerShape(8.dp),
+                        border = BorderStroke(1.dp,Color.LightGray),
+                        modifier = Modifier
+                            .height(36.dp)
+                            .width(80.dp)
+                    ) {
+                        Text("Mensaje", fontSize = 14.sp, color = Color.Black)
                     }
                 }
+            } else {
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Text(
+                    text = "Completada",
+                    color = colorTipo,
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
+    }
+}
 
 
 
