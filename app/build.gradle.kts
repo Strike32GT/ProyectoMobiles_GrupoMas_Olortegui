@@ -40,31 +40,34 @@ android {
 }
 
 dependencies {
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
-
-
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
-    implementation(libs.androidx.foundation)
     implementation(libs.androidx.material3)
-    implementation("androidx.compose.material:material-icons-extended")
-
-    // 🔹 Navegación
-    implementation("androidx.navigation:navigation-compose:2.8.3")
-    implementation(libs.androidx.ui.unit)
-    implementation(libs.androidx.material3.window.size.class1)
-    implementation(libs.androidx.ui.geometry)
-
-    // 🔹 Testing
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.room.common.jvm)
+    implementation(libs.androidx.room.ktx)
     testImplementation(libs.junit)
+    implementation("androidx.compose.material:material-icons-extended")
+    //View Model Compose
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0")
+
+    //Coroutines
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+
+    //Retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
+    implementation("androidx.compose.material:material-icons-extended")
     debugImplementation(libs.androidx.ui.test.manifest)
 }
