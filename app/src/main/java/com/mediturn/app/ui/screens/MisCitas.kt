@@ -21,8 +21,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.text.font.*
 import androidx.compose.ui.unit.*
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.mediturn.app.data.model.Cita
+import com.mediturn.app.viewmodel.CitaViewModel
+import java.time.LocalDate
 
 //Primer Avance del activity Citas Fernando Mas
 @OptIn(ExperimentalMaterial3Api::class)
@@ -103,39 +106,68 @@ fun MisCitas(navController: NavController) {
 }
 
 @Composable
-fun CitasProximas() {
-    val citas=listOf(
-        Cita("Dr. Carlos Mendoza","Cardiología", "vie, 24 oct", "3:00 PM", "Teleconsulta"),
-        Cita("Dra. María González", "Pediatría", "lun, 27 oct", "10:00 AM", "Presencial")
-    )
-    LazyColumn(
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ){
-        items(citas){ cita ->
-            CitaCard(cita)
+fun CitasProximas(viewModel: CitaViewModel = viewModel()) {
+    val citas by viewModel.citas.collectAsState()
+    val cargando by viewModel.cargando.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.loadCitas()
+    }
+
+    if(cargando) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
+            CircularProgressIndicator(color = Color(0xFF00CBA9))
+        }
+    } else if (citas.isEmpty()){
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
+            Text("No hay citas proximas", color = Color.Gray)
+        }
+    } else {
+        LazyColumn(
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ){
+            items(citas){ cita ->
+                CitaCard(cita)
+            }
         }
     }
 }
 
 @Composable
-fun CitasHistorial(){
-    val citas= listOf(
-        Cita(
-            "Dra. Anna Torres",
-            "Medicina General",
-            "mar, 14 oct",
-            "2:00 PM",
-            "Completada"
-        )
-    )
+fun CitasHistorial(viewModel: CitaViewModel=viewModel()){
+    val citas by viewModel.citas.collectAsState()
+    val cargando by viewModel.cargando.collectAsState()
 
-    LazyColumn(
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ){
-        items(citas){ cita ->
-            CitaCard(cita, historial=true)
+    LaunchedEffect(Unit) {
+        viewModel.loadCitas()
+    }
+
+    val historial = citas.filter { cita ->
+        try {
+            val fechaCita= LocalDate.parse(cita.fecha)
+            fechaCita.isBefore(LocalDate.now())
+        }catch (e: Exception){
+            false
+        }
+    }
+
+    if(cargando){
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
+            CircularProgressIndicator(color = Color(0xFF00CBA9))
+        }
+    }else if(historial.isEmpty()){
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
+            Text("No hay citas en el historial", color = Color.Gray)
+        }
+    }else{
+        LazyColumn(
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ){
+            items(citas){ cita ->
+                CitaCard(cita, historial=true)
+            }
         }
     }
 }
@@ -264,7 +296,7 @@ fun CitaCard(cita: Cita, historial: Boolean = false) {
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier
                             .height(36.dp)
-                            .width(85.dp)
+                            .width(102.dp)
                     ) {
                         Text(
                             "Unirse",
@@ -278,7 +310,7 @@ fun CitaCard(cita: Cita, historial: Boolean = false) {
                         border = BorderStroke(1.dp,Color.LightGray),
                         modifier = Modifier
                             .height(36.dp)
-                            .width(80.dp)
+                            .width(102.dp)
                     ) {
                         Text("Mensaje", fontSize = 14.sp, color = Color.Black)
                     }
