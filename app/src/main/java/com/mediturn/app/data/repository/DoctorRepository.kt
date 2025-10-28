@@ -1,7 +1,6 @@
 package com.mediturn.app.data.repository
 
 import com.mediturn.app.data.model.Doctor
-import com.mediturn.app.data.remote.ApiService
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 

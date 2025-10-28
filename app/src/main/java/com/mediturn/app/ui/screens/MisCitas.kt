@@ -165,7 +165,7 @@ fun CitasHistorial(viewModel: CitaViewModel=viewModel()){
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ){
-            items(citas){ cita ->
+            items(historial){ cita ->
                 CitaCard(cita, historial=true)
             }
         }

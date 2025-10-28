@@ -1,20 +1,23 @@
 package com.mediturn.app.data.repository
 
+import com.mediturn.app.data.dao.CitaDao
 import com.mediturn.app.data.model.Cita
-import com.mediturn.app.data.remote.ApiService
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 
-class CitaRepository {
+class CitaRepository (private val citaDao: CitaDao){
 
-    private val retrofit = Retrofit.Builder()
-        .baseUrl("http://127.0.0.1:8000/api/citas/")
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
+    suspend fun getAllCitas(): List<Cita>{
+        return citaDao.getAllCitas()
+    }
 
-    private val apiService = retrofit.create(ApiService::class.java)
+    suspend fun insertaCita(cita: Cita){
+        return citaDao.insertCita(cita)
+    }
 
-    suspend fun getCitas(): List<Cita>{
-        return apiService.getCitas()
+    suspend fun updateCita(cita: Cita){
+        citaDao.updateCita(cita)
+    }
+
+    suspend fun deleteCita(cita: Cita){
+        citaDao.deleteCita(cita)
     }
 }
