@@ -3,11 +3,16 @@ package com.mediturn.app.ui.screens
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Call
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Place
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -16,17 +21,20 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.text.font.*
 import androidx.compose.ui.unit.*
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.mediturn.app.data.model.Cita
-import com.mediturn.app.ui.components.BottomNavBar
+import com.mediturn.app.viewmodel.CitaViewModel
+import java.time.LocalDate
 
+//Primer Avance del activity Citas Fernando Mas
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MisCitas(navController: NavController) {
     var selectTab by remember { mutableStateOf(0) }
-    val tabs = listOf("Próximas", "Historial")
+    val tabs= listOf("Proximas","Historial")
 
-    Scaffold(
+    Scaffold (
         topBar = {
             TopAppBar(
                 title = {
@@ -47,82 +55,119 @@ fun MisCitas(navController: NavController) {
                 )
             )
         },
-        bottomBar = { BottomNavBar(navController, "citas") }
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize()
-                .background(Color(0xFFF5F6FA))
-                .imePadding()
-                .navigationBarsPadding()
-        ) {
-            TabRow(
-                selectedTabIndex = selectTab,
-                containerColor = Color.White,
-                contentColor = Color(0xFF00CBA9),
-                indicator = {},
-                divider = {}
-            ) {
-                tabs.forEachIndexed { index, title ->
-                    Tab(
-                        selected = selectTab == index,
-                        onClick = { selectTab = index },
-                        text = {
-                            Text(
-                                text = title,
-                                fontWeight = FontWeight.SemiBold,
-                                color = if (selectTab == index)
-                                    Color(0xFF00CBA9) else Color.Gray
-                            )
-                        }
-                    )
+        bottomBar = {
+            BottomAppBar(containerColor = Color.White){
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceAround
+                ){
+                    Text("Inicio",color=Color.Gray)
+                    Text("Citas",color=Color(0xFF00CBA9), fontWeight = FontWeight.Bold)
+                    Text("Perfil", color = Color.Gray)
                 }
             }
+        }
+    ){ innerPadding ->
+                Column(
+                    modifier = Modifier
+                        .padding(innerPadding)
+                        .fillMaxSize()
+                        .background(Color(0xFFF5F6FA))
+                ){
+                    TabRow(
+                        selectedTabIndex = selectTab,
+                        containerColor = Color.White,
+                        contentColor = Color(0xFF00CBA9),
+                        indicator = {},
+                        divider = {}
+                    ){
+                        tabs.forEachIndexed { index, title ->
+                            Tab(
+                                selected = selectTab == index,
+                                onClick = { selectTab = index },
+                                text = {
+                                    Text(
+                                        text = title,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = if(selectTab == index)
+                                        Color(0xFF00CBA9) else Color.Gray
+                                        )
+                                       }
+                            )
+                        }
+                    }
 
-            when (selectTab) {
-                0 -> CitasProximas()
-                1 -> CitasHistorial()
+                    when (selectTab){
+                        0 ->CitasProximas()
+                        1->CitasHistorial()
+                    }
+                }
+            }
+}
+
+@Composable
+fun CitasProximas(viewModel: CitaViewModel = viewModel()) {
+    val citas by viewModel.citas.collectAsState()
+    val cargando by viewModel.cargando.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.loadCitas()
+    }
+
+    if(cargando) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
+            CircularProgressIndicator(color = Color(0xFF00CBA9))
+        }
+    } else if (citas.isEmpty()){
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
+            Text("No hay citas proximas", color = Color.Gray)
+        }
+    } else {
+        LazyColumn(
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ){
+            items(citas){ cita ->
+                CitaCard(cita)
             }
         }
     }
 }
 
-
 @Composable
-fun CitasProximas() {
-    val citas=listOf(
-        Cita("Dr. Carlos Mendoza","Cardiología", "vie, 24 oct", "3:00 PM", "Teleconsulta"),
-        Cita("Dra. María González", "Pediatría", "lun, 27 oct", "10:00 AM", "Presencial")
-    )
-    LazyColumn(
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ){
-        items(citas){ cita ->
-            CitaCard(cita)
+fun CitasHistorial(viewModel: CitaViewModel=viewModel()){
+    val citas by viewModel.citas.collectAsState()
+    val cargando by viewModel.cargando.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.loadCitas()
+    }
+
+    val historial = citas.filter { cita ->
+        try {
+            val fechaCita= LocalDate.parse(cita.fecha)
+            fechaCita.isBefore(LocalDate.now())
+        }catch (e: Exception){
+            false
         }
     }
-}
 
-@Composable
-fun CitasHistorial(){
-    val citas= listOf(
-        Cita(
-            "Dra. Anna Torres",
-            "Medicina General",
-            "mar, 14 oct",
-            "2:00 PM",
-            "Completada"
-        )
-    )
-
-    LazyColumn(
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ){
-        items(citas){ cita ->
-            CitaCard(cita, historial=true)
+    if(cargando){
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
+            CircularProgressIndicator(color = Color(0xFF00CBA9))
+        }
+    }else if(historial.isEmpty()){
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
+            Text("No hay citas en el historial", color = Color.Gray)
+        }
+    }else{
+        LazyColumn(
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ){
+            items(historial){ cita ->
+                CitaCard(cita, historial=true)
+            }
         }
     }
 }
@@ -251,7 +296,7 @@ fun CitaCard(cita: Cita, historial: Boolean = false) {
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier
                             .height(36.dp)
-                            .width(85.dp)
+                            .width(102.dp)
                     ) {
                         Text(
                             "Unirse",
@@ -265,7 +310,7 @@ fun CitaCard(cita: Cita, historial: Boolean = false) {
                         border = BorderStroke(1.dp,Color.LightGray),
                         modifier = Modifier
                             .height(36.dp)
-                            .width(80.dp)
+                            .width(102.dp)
                     ) {
                         Text("Mensaje", fontSize = 14.sp, color = Color.Black)
                     }
