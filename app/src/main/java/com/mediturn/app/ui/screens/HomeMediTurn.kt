@@ -149,7 +149,7 @@ fun HomeMediTurn(navController: NavController) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 24.dp),
-                horizontalArrangement = Arrangement.Center,
+                horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 val specialties = listOf(
@@ -216,7 +216,7 @@ fun SpecialtyCard(name: String, icon: Int) {
         elevation = CardDefaults.cardElevation(6.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         modifier = Modifier
-            .width(150.dp)
+            .width(165.dp)
             .height(70.dp)
             .shadow(3.dp, RoundedCornerShape(16.dp))
     ) {

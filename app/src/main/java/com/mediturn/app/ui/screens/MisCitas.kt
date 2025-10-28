@@ -3,16 +3,11 @@ package com.mediturn.app.ui.screens
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Call
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Place
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -23,15 +18,15 @@ import androidx.compose.ui.text.font.*
 import androidx.compose.ui.unit.*
 import androidx.navigation.NavController
 import com.mediturn.app.data.model.Cita
+import com.mediturn.app.ui.components.BottomNavBar
 
-//Primer Avance del activity Citas Fernando Mas
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MisCitas(navController: NavController) {
     var selectTab by remember { mutableStateOf(0) }
-    val tabs= listOf("Proximas","Historial")
+    val tabs = listOf("Próximas", "Historial")
 
-    Scaffold (
+    Scaffold(
         topBar = {
             TopAppBar(
                 title = {
@@ -52,55 +47,47 @@ fun MisCitas(navController: NavController) {
                 )
             )
         },
-        bottomBar = {
-            BottomAppBar(containerColor = Color.White){
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceAround
-                ){
-                    Text("Inicio",color=Color.Gray)
-                    Text("Citas",color=Color(0xFF00CBA9), fontWeight = FontWeight.Bold)
-                    Text("Perfil", color = Color.Gray)
-                }
-            }
-        }
-    ){ innerPadding ->
-                Column(
-                    modifier = Modifier
-                        .padding(innerPadding)
-                        .fillMaxSize()
-                        .background(Color(0xFFF5F6FA))
-                ){
-                    TabRow(
-                        selectedTabIndex = selectTab,
-                        containerColor = Color.White,
-                        contentColor = Color(0xFF00CBA9),
-                        indicator = {},
-                        divider = {}
-                    ){
-                        tabs.forEachIndexed { index, title ->
-                            Tab(
-                                selected = selectTab == index,
-                                onClick = { selectTab = index },
-                                text = {
-                                    Text(
-                                        text = title,
-                                        fontWeight = FontWeight.SemiBold,
-                                        color = if(selectTab == index)
-                                        Color(0xFF00CBA9) else Color.Gray
-                                        )
-                                       }
+        bottomBar = { BottomNavBar(navController, "citas") }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
+                .background(Color(0xFFF5F6FA))
+                .imePadding()
+                .navigationBarsPadding()
+        ) {
+            TabRow(
+                selectedTabIndex = selectTab,
+                containerColor = Color.White,
+                contentColor = Color(0xFF00CBA9),
+                indicator = {},
+                divider = {}
+            ) {
+                tabs.forEachIndexed { index, title ->
+                    Tab(
+                        selected = selectTab == index,
+                        onClick = { selectTab = index },
+                        text = {
+                            Text(
+                                text = title,
+                                fontWeight = FontWeight.SemiBold,
+                                color = if (selectTab == index)
+                                    Color(0xFF00CBA9) else Color.Gray
                             )
                         }
-                    }
-
-                    when (selectTab){
-                        0 ->CitasProximas()
-                        1->CitasHistorial()
-                    }
+                    )
                 }
             }
+
+            when (selectTab) {
+                0 -> CitasProximas()
+                1 -> CitasHistorial()
+            }
+        }
+    }
 }
+
 
 @Composable
 fun CitasProximas() {

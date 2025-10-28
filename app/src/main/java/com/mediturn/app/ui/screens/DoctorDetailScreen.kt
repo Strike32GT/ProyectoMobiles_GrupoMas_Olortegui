@@ -1,5 +1,7 @@
 package com.mediturn.app.ui.screens
 
+import android.annotation.SuppressLint
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -23,10 +25,24 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.mediturn.app.R
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.Dp
 
-@OptIn(ExperimentalMaterial3Api::class)
+@SuppressLint("ContextCastToActivity")
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
 fun DoctorDetailScreen(navController: NavController) {
+
+
+    val windowSizeClass = calculateWindowSizeClass(activity = LocalContext.current as ComponentActivity)
+    val isCompact = remember { windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact }
+    val horizontalPadding = if (isCompact) 20.dp else 80.dp
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -46,8 +62,13 @@ fun DoctorDetailScreen(navController: NavController) {
                         )
                     }
                 },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color(0xFF007AFF)
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.Transparent
+                ),
+                modifier = Modifier.background(
+                    Brush.verticalGradient(
+                        listOf(Color(0xFF007AFF), Color(0xFF00C6AE))
+                    )
                 )
             )
         }
@@ -58,12 +79,14 @@ fun DoctorDetailScreen(navController: NavController) {
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .background(Color(0xFFF8F9FB))
+                .imePadding()
+                .navigationBarsPadding()
         ) {
-            // 🔷 Cabecera con gradiente
+            // 🔷 Encabezado gradiente
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(160.dp)
+                    .height(200.dp)
                     .background(
                         Brush.verticalGradient(
                             listOf(Color(0xFF007AFF), Color(0xFF00C6AE))
@@ -74,14 +97,17 @@ fun DoctorDetailScreen(navController: NavController) {
             // 🔹 Tarjeta principal del doctor
             Card(
                 modifier = Modifier
-                    .padding(horizontal = 20.dp)
-                    .offset(y = (-50).dp)
+                    .padding(horizontal = horizontalPadding)
+                    .offset(y = (-60).dp)
                     .fillMaxWidth(),
-                elevation = CardDefaults.cardElevation(6.dp),
-                shape = RoundedCornerShape(16.dp)
+                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White)
             ) {
                 Row(
-                    modifier = Modifier.padding(16.dp),
+                    modifier = Modifier
+                        .padding(20.dp)
+                        .fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Image(
@@ -89,26 +115,29 @@ fun DoctorDetailScreen(navController: NavController) {
                         contentDescription = "Foto del doctor",
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
-                            .size(70.dp)
+                            .size(80.dp)
                             .clip(CircleShape)
                     )
 
-                    Spacer(modifier = Modifier.width(12.dp))
+                    Spacer(modifier = Modifier.width(16.dp))
 
-                    Column {
+                    Column(
+                        modifier = Modifier.weight(1f)
+                    ) {
                         Text(
                             "Dr. Carlos Mendoza",
                             fontWeight = FontWeight.Bold,
-                            fontSize = 18.sp
+                            fontSize = 18.sp,
+                            color = Color(0xFF1B1B1B)
                         )
                         Text(
                             "Cardiología",
                             color = Color(0xFF00A88B),
                             fontSize = 14.sp
                         )
-                        Spacer(Modifier.height(6.dp))
+                        Spacer(Modifier.height(8.dp))
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text("⭐ 4.8 (156)", fontSize = 13.sp)
+                            Text("⭐ 4.8 (156)", fontSize = 13.sp, color = Color(0xFF555555))
                             Spacer(Modifier.width(8.dp))
                             Box(
                                 modifier = Modifier
@@ -123,33 +152,34 @@ fun DoctorDetailScreen(navController: NavController) {
                 }
             }
 
+            Spacer(Modifier.height(10.dp))
+
             // 🔹 Tarjetas de información general
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 20.dp),
+                    .padding(horizontal = horizontalPadding),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 InfoCard(icon = R.drawable.ic_experience, title = "Experiencia", value = "15 años")
-                InfoCard(icon = R.drawable.ic_location, title = "Ubicación", value = "Hospital Central")
+                InfoCard(icon = R.drawable.ic_location, title = "Hospital", value = "Central")
                 InfoCard(icon = R.drawable.ic_language, title = "Idiomas", value = "2")
             }
 
             Spacer(Modifier.height(16.dp))
 
-            // 🔹 Acerca de
             InfoSection(
                 title = "Acerca de",
                 text = "Cardiólogo especializado en enfermedades del corazón con más de 15 años de experiencia.",
                 location = "Hospital Central, Lima",
-                languages = "Español, Inglés"
+                languages = "Español, Inglés",
+                horizontalPadding = horizontalPadding
             )
 
-            // 🔹 Horarios disponibles
-            ScheduleSection()
+            ScheduleSection(horizontalPadding)
+            PriceSection(horizontalPadding)
 
-            // 🔹 Precio
-            PriceSection()
+            Spacer(Modifier.height(30.dp))
         }
     }
 }
@@ -162,10 +192,10 @@ fun DoctorDetailScreen(navController: NavController) {
 fun InfoCard(icon: Int, title: String, value: String) {
     Card(
         modifier = Modifier
-            .width(100.dp)
-            .height(90.dp),
-        shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(3.dp),
+            .width(110.dp)
+            .height(95.dp),
+        shape = RoundedCornerShape(18.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
         Column(
@@ -176,9 +206,9 @@ fun InfoCard(icon: Int, title: String, value: String) {
             Image(
                 painter = painterResource(id = icon),
                 contentDescription = title,
-                modifier = Modifier.size(28.dp)
+                modifier = Modifier.size(30.dp)
             )
-            Spacer(Modifier.height(6.dp))
+            Spacer(Modifier.height(8.dp))
             Text(value, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color(0xFF222222))
             Text(title, fontSize = 12.sp, color = Color(0xFF7A7A7A))
         }
@@ -186,18 +216,19 @@ fun InfoCard(icon: Int, title: String, value: String) {
 }
 
 @Composable
-fun InfoSection(title: String, text: String, location: String, languages: String) {
+fun InfoSection(title: String, text: String, location: String, languages: String, horizontalPadding: Dp) {
     Card(
         modifier = Modifier
-            .padding(horizontal = 20.dp)
+            .padding(horizontal = horizontalPadding)
             .fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        shape = RoundedCornerShape(18.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(title, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF222222))
             Spacer(Modifier.height(8.dp))
-            Text(text, fontSize = 14.sp, color = Color(0xFF444444), lineHeight = 18.sp)
+            Text(text, fontSize = 14.sp, color = Color(0xFF444444), lineHeight = 20.sp)
             Spacer(Modifier.height(12.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("📍", fontSize = 14.sp)
@@ -215,21 +246,22 @@ fun InfoSection(title: String, text: String, location: String, languages: String
 }
 
 @Composable
-fun ScheduleSection() {
+fun ScheduleSection(horizontalPadding: Dp) {
     Card(
         modifier = Modifier
-            .padding(horizontal = 20.dp, vertical = 16.dp)
+            .padding(horizontal = horizontalPadding, vertical = 16.dp)
             .fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        shape = RoundedCornerShape(18.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text("Horarios Disponibles", fontWeight = FontWeight.Bold, color = Color(0xFF222222), fontSize = 16.sp)
+            Text("Horarios Disponibles", fontWeight = FontWeight.Bold, fontSize = 16.sp)
             Spacer(Modifier.height(8.dp))
 
             val horarios = listOf(
                 "Hoy" to listOf("3:00 PM", "4:30 PM", "6:00 PM"),
-                "Mañana" to listOf("9:00 AM", "10:30 AM", "2:00 PM", "5:00 PM"),
+                "Mañana" to listOf("9:00 AM", "10:30 AM", "2:00 PM"),
                 "Viernes" to listOf("11:00 AM", "1:00 PM", "3:30 PM")
             )
 
@@ -258,13 +290,13 @@ fun ScheduleSection() {
 }
 
 @Composable
-fun PriceSection() {
+fun PriceSection(horizontalPadding: Dp) {
     Card(
         modifier = Modifier
-            .padding(horizontal = 20.dp)
+            .padding(horizontal = horizontalPadding)
             .fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF00A88B).copy(alpha = 0.1f))
+        shape = RoundedCornerShape(18.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF00A88B).copy(alpha = 0.08f))
     ) {
         Row(
             modifier = Modifier
