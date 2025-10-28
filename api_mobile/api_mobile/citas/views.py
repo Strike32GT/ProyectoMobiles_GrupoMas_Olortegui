@@ -7,3 +7,5 @@ from .serializers import CitaSerializer
 class CitaViewSet(viewsets.ModelViewSet):
     queryset = Citas.objects.all()
     serializer_class = CitaSerializer
+
+    
