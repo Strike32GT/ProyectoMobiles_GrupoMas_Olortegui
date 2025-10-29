@@ -28,7 +28,10 @@ abstract class MediturnDatabase : RoomDatabase(){
                     context.applicationContext,
                     MediturnDatabase::class.java,
                     "mediturn_database"
-                ).build()
+                )
+                .allowMainThreadQueries()
+                .fallbackToDestructiveMigration()
+                .build()
                 INSTANCE = instance
                 instance
             }

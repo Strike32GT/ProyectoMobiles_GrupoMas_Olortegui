@@ -26,11 +26,16 @@ import androidx.navigation.NavController
 import com.mediturn.app.data.model.Cita
 import com.mediturn.app.viewmodel.CitaViewModel
 import java.time.LocalDate
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.ViewModelProvider
+
 
 //Primer Avance del activity Citas Fernando Mas
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MisCitas(navController: NavController) {
+fun MisCitas(navController: NavController,
+             citaViewModel: CitaViewModel=viewModel()
+) {
     var selectTab by remember { mutableStateOf(0) }
     val tabs= listOf("Proximas","Historial")
 
@@ -98,15 +103,15 @@ fun MisCitas(navController: NavController) {
                     }
 
                     when (selectTab){
-                        0 ->CitasProximas()
-                        1->CitasHistorial()
+                        0 ->CitasProximas(viewModel = citaViewModel)
+                        1->CitasHistorial(viewModel  = citaViewModel)
                     }
                 }
             }
 }
 
 @Composable
-fun CitasProximas(viewModel: CitaViewModel = viewModel()) {
+fun CitasProximas(viewModel: CitaViewModel) {
     val citas by viewModel.citas.collectAsState()
     val cargando by viewModel.cargando.collectAsState()
 
@@ -135,7 +140,7 @@ fun CitasProximas(viewModel: CitaViewModel = viewModel()) {
 }
 
 @Composable
-fun CitasHistorial(viewModel: CitaViewModel=viewModel()){
+fun CitasHistorial(viewModel: CitaViewModel){
     val citas by viewModel.citas.collectAsState()
     val cargando by viewModel.cargando.collectAsState()
 
@@ -145,7 +150,7 @@ fun CitasHistorial(viewModel: CitaViewModel=viewModel()){
 
     val historial = citas.filter { cita ->
         try {
-            val fechaCita= LocalDate.parse(cita.fecha)
+            val fechaCita= LocalDate.parse(cita.fecha ?:"")
             fechaCita.isBefore(LocalDate.now())
         }catch (e: Exception){
             false
@@ -236,7 +241,7 @@ fun CitaCard(cita: Cita, historial: Boolean = false) {
                     Spacer(modifier = Modifier.width(4.dp))
 
                     Text(
-                        cita.fecha,
+                        cita.fecha ?:"Sin fecha",
                         color = Color.Gray,
                         fontSize = 13.sp
                     )

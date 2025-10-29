@@ -54,6 +54,7 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     testImplementation(libs.junit)
     implementation("androidx.compose.material:material-icons-extended")
+    implementation("androidx.compose.material3:material3-window-size-class:1.2.0")
     //View Model Compose
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0")
 

@@ -13,9 +13,7 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-class CitaViewModel (application: Application): AndroidViewModel(application){
-
-    private val repository : CitaRepository
+class CitaViewModel (private val repository: CitaRepository): ViewModel(){
 
     private val _citas= MutableStateFlow<List<Cita>>(emptyList())
     val citas: StateFlow<List<Cita>> get() = _citas
@@ -23,10 +21,6 @@ class CitaViewModel (application: Application): AndroidViewModel(application){
     private val _cargando=MutableStateFlow(false)
     val cargando: StateFlow<Boolean> get() = _cargando
 
-    init {
-        val dao= MediturnDatabase.getDataBase(application).citaDao()
-        repository= CitaRepository(dao)
-    }
     fun loadCitas() {
         viewModelScope.launch {
             _cargando.value=true
@@ -42,14 +36,8 @@ class CitaViewModel (application: Application): AndroidViewModel(application){
 
     fun agregarCita(doctor: String, especialidad: String, hora: String, tipo: String){
         viewModelScope.launch {
-            val fecha= LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
-            val nuevaCita= Cita(
-                doctor = doctor,
-                especialidad = especialidad,
-                hora = hora,
-                fecha = fecha,
-                tipo = tipo
-            )
+            val fecha = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
+            val nuevaCita = Cita(doctor = doctor, especialidad = especialidad, hora = hora, fecha = fecha, tipo = tipo)
             repository.insertaCita(nuevaCita)
             loadCitas()
         }
