@@ -1,5 +1,11 @@
 package com.mediturn.app.data.dao
 
-interface PatientDao{
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.Query
+
+@Dao
+interface PatientDao {
 
 }
+    

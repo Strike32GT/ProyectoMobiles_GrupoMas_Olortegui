@@ -79,7 +79,7 @@ fun Perfil(navController: NavController) {
                 .imePadding()
                 .navigationBarsPadding()
         ) {
-            // 🔷 Encabezado curvado estilo Figma
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()

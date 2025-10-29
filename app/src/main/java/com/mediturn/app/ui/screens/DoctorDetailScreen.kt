@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
@@ -245,6 +246,7 @@ fun InfoSection(title: String, text: String, location: String, languages: String
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ScheduleSection(horizontalPadding: Dp) {
     Card(
@@ -269,6 +271,7 @@ fun ScheduleSection(horizontalPadding: Dp) {
                 Spacer(Modifier.height(8.dp))
                 Text(dia, fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = Color(0xFF007AFF))
                 Spacer(Modifier.height(4.dp))
+
                 FlowRow(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -288,6 +291,7 @@ fun ScheduleSection(horizontalPadding: Dp) {
         }
     }
 }
+
 
 @Composable
 fun PriceSection(horizontalPadding: Dp) {

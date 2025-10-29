@@ -24,7 +24,8 @@ fun MediTurnNav() {
         composable("login"){ LoginMediTurn(navController) }
         composable("create"){ CreateAccountMediTurn(navController) }
         composable("especialidad"){ Especialidad(navController) }
-        composable( "citas") { MisCitas(navController) }
+        composable("citas") { MisCitas() }
+
         composable("perfil"){ Perfil(navController) }
         composable("doctors") { DoctorsScreen(navController) }
         composable("detail") { DoctorDetailScreen(navController) }

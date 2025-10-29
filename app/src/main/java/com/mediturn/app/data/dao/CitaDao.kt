@@ -1,18 +1,14 @@
 package com.mediturn.app.data.dao
 
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
-import androidx.room.Update
+import androidx.room.*
 import com.mediturn.app.data.model.Cita
+import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface CitaDao{
+interface CitaDao {
 
     @Query("SELECT * FROM citas ORDER BY fecha, hora")
-    suspend fun getAllCitas(): List<Cita>
+    fun getAllCitas(): Flow<List<Cita>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCita(cita: Cita)

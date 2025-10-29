@@ -12,23 +12,36 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.mediturn.app.data.database.MediturnDatabase
+import com.mediturn.app.data.repository.DoctorRepository
 import com.mediturn.app.ui.components.DoctorCard
-import com.mediturn.app.data.repository.DataRepository
+import com.mediturn.app.viewmodel.DoctorViewModel
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DoctorsScreen(navController: NavController) {
+
+
+    val context = LocalContext.current
+    val doctorDao = remember { MediturnDatabase.getDataBase(context).doctorDao() }
+    val repository = remember { DoctorRepository(doctorDao) }
+    val viewModel = remember { DoctorViewModel(repository) }
+
+    // 🔹 Estado UI
+    val doctores by viewModel.doctores.collectAsState()
+    val cargando by viewModel.cargando.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
 
-    // 🔹 Optimizado: derivedStateOf evita bloqueos o recomposiciones pesadas
-    val doctoresFiltrados by remember {
-        derivedStateOf {
-            if (searchQuery.isBlank()) DataRepository.doctores
-            else DataRepository.buscarDoctores(searchQuery.trim())
-        }
+    val coroutineScope = rememberCoroutineScope()
+
+    // 🔹 Cargar lista al iniciar pantalla
+    LaunchedEffect(Unit) {
+        viewModel.loadDoctores()
     }
 
     Scaffold(
@@ -61,6 +74,7 @@ fun DoctorsScreen(navController: NavController) {
             )
         }
     ) { padding ->
+
         Column(
             modifier = Modifier
                 .padding(padding)
@@ -70,10 +84,20 @@ fun DoctorsScreen(navController: NavController) {
                 .navigationBarsPadding()
                 .padding(horizontal = 16.dp)
         ) {
-            // 🔹 Campo de búsqueda
+
+            // 🔹 Barra de búsqueda
             OutlinedTextField(
                 value = searchQuery,
-                onValueChange = { searchQuery = it },
+                onValueChange = {
+                    searchQuery = it
+                    coroutineScope.launch {
+                        if (searchQuery.isBlank()) {
+                            viewModel.loadDoctores()
+                        } else {
+                            viewModel.buscarDoctores(searchQuery)
+                        }
+                    }
+                },
                 label = { Text("Buscar por nombre o especialidad") },
                 singleLine = true,
                 modifier = Modifier
@@ -90,36 +114,46 @@ fun DoctorsScreen(navController: NavController) {
 
             Spacer(Modifier.height(12.dp))
 
-            // 🔹 Lista de doctores
-            if (doctoresFiltrados.isEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(top = 50.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "No se encontraron resultados",
-                        color = Color.Gray,
-                        fontWeight = FontWeight.Medium
-                    )
+            // 🔹 Estado de carga o resultados
+            when {
+                cargando -> {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(color = Color(0xFF00C6AE))
+                    }
                 }
-            } else {
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    contentPadding = PaddingValues(bottom = 16.dp)
-                ) {
-                    items(doctoresFiltrados) { doctor ->
-                        DoctorCard(
-                            name = doctor.nombre,
-                            specialty = doctor.especialidad,
-                            schedule = doctor.horario,
-                            price = "S/${doctor.precio}",
-                            onClick = {
-                                // 🔹 Navegar al detalle del médico
-                                navController.navigate("doctor_detail")
-                            }
+
+                doctores.isEmpty() -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(top = 50.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "No se encontraron resultados",
+                            color = Color.Gray,
+                            fontWeight = FontWeight.Medium
                         )
+                    }
+                }
+
+                else -> {
+                    LazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        contentPadding = PaddingValues(bottom = 16.dp)
+                    ) {
+                        items(doctores) { doctor ->
+                            DoctorCard(
+                                name = doctor.nombre,
+                                specialty = doctor.especialidad,
+                                schedule = doctor.horario,
+                                price = "S/${doctor.precio}",
+                                onClick = {
+                                    // 🔹 Navegar al detalle del médico
+                                    navController.navigate("doctor_detail")
+                                }
+                            )
+                        }
                     }
                 }
             }

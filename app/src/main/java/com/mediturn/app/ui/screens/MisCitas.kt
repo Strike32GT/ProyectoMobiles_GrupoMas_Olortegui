@@ -3,8 +3,8 @@ package com.mediturn.app.ui.screens
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.lazy.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -18,28 +18,31 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.*
-import androidx.compose.ui.text.font.*
-import androidx.compose.ui.unit.*
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.mediturn.app.data.database.MediturnDatabase
 import com.mediturn.app.data.model.Cita
+import com.mediturn.app.data.repository.CitaRepository
 import com.mediturn.app.viewmodel.CitaViewModel
 import java.time.LocalDate
-import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.ViewModelProvider
 
-
-//Primer Avance del activity Citas Fernando Mas
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MisCitas(navController: NavController,
-             citaViewModel: CitaViewModel=viewModel()
-) {
-    var selectTab by remember { mutableStateOf(0) }
-    val tabs= listOf("Proximas","Historial")
+fun MisCitas() {
+    val context = LocalContext.current
+    val db by remember { mutableStateOf(MediturnDatabase.getDataBase(context)) }
+    val citaDao = remember(db) { db.citaDao() }
+    val repository = remember { CitaRepository(citaDao) }
+    val citaViewModel = remember { CitaViewModel(repository) }
 
-    Scaffold (
+    var selectTab by remember { mutableIntStateOf(0) }
+    val tabs = listOf("Próximas", "Historial")
+
+    Scaffold(
         topBar = {
             TopAppBar(
                 title = {
@@ -61,53 +64,54 @@ fun MisCitas(navController: NavController,
             )
         },
         bottomBar = {
-            BottomAppBar(containerColor = Color.White){
+            BottomAppBar(containerColor = Color.White) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceAround
-                ){
-                    Text("Inicio",color=Color.Gray)
-                    Text("Citas",color=Color(0xFF00CBA9), fontWeight = FontWeight.Bold)
+                ) {
+                    Text("Inicio", color = Color.Gray)
+                    Text("Citas", color = Color(0xFF00CBA9), fontWeight = FontWeight.Bold)
                     Text("Perfil", color = Color.Gray)
                 }
             }
         }
-    ){ innerPadding ->
-                Column(
-                    modifier = Modifier
-                        .padding(innerPadding)
-                        .fillMaxSize()
-                        .background(Color(0xFFF5F6FA))
-                ){
-                    TabRow(
-                        selectedTabIndex = selectTab,
-                        containerColor = Color.White,
-                        contentColor = Color(0xFF00CBA9),
-                        indicator = {},
-                        divider = {}
-                    ){
-                        tabs.forEachIndexed { index, title ->
-                            Tab(
-                                selected = selectTab == index,
-                                onClick = { selectTab = index },
-                                text = {
-                                    Text(
-                                        text = title,
-                                        fontWeight = FontWeight.SemiBold,
-                                        color = if(selectTab == index)
-                                        Color(0xFF00CBA9) else Color.Gray
-                                        )
-                                       }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
+                .background(Color(0xFFF5F6FA))
+        ) {
+            // 🔹 Tabs
+            TabRow(
+                selectedTabIndex = selectTab,
+                containerColor = Color.White,
+                contentColor = Color(0xFF00CBA9),
+                indicator = {},
+                divider = {}
+            ) {
+                tabs.forEachIndexed { index, title ->
+                    Tab(
+                        selected = selectTab == index,
+                        onClick = { selectTab = index },
+                        text = {
+                            Text(
+                                text = title,
+                                fontWeight = FontWeight.SemiBold,
+                                color = if (selectTab == index)
+                                    Color(0xFF00CBA9) else Color.Gray
                             )
                         }
-                    }
-
-                    when (selectTab){
-                        0 ->CitasProximas(viewModel = citaViewModel)
-                        1->CitasHistorial(viewModel  = citaViewModel)
-                    }
+                    )
                 }
             }
+
+            when (selectTab) {
+                0 -> CitasProximas(viewModel = citaViewModel)
+                1 -> CitasHistorial(viewModel = citaViewModel)
+            }
+        }
+    }
 }
 
 @Composable
@@ -115,24 +119,22 @@ fun CitasProximas(viewModel: CitaViewModel) {
     val citas by viewModel.citas.collectAsState()
     val cargando by viewModel.cargando.collectAsState()
 
-    LaunchedEffect(Unit) {
-        viewModel.loadCitas()
-    }
+    LaunchedEffect(Unit) { viewModel.loadCitas() }
 
-    if(cargando) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
+    when {
+        cargando -> Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             CircularProgressIndicator(color = Color(0xFF00CBA9))
         }
-    } else if (citas.isEmpty()){
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
-            Text("No hay citas proximas", color = Color.Gray)
+
+        citas.isEmpty() -> Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text("No hay citas próximas", color = Color.Gray)
         }
-    } else {
-        LazyColumn(
+
+        else -> LazyColumn(
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
-        ){
-            items(citas){ cita ->
+        ) {
+            items(citas) { cita ->
                 CitaCard(cita)
             }
         }
@@ -140,49 +142,41 @@ fun CitasProximas(viewModel: CitaViewModel) {
 }
 
 @Composable
-fun CitasHistorial(viewModel: CitaViewModel){
+fun CitasHistorial(viewModel: CitaViewModel) {
     val citas by viewModel.citas.collectAsState()
     val cargando by viewModel.cargando.collectAsState()
 
-    LaunchedEffect(Unit) {
-        viewModel.loadCitas()
-    }
+    LaunchedEffect(Unit) { viewModel.loadCitas() }
 
     val historial = citas.filter { cita ->
-        try {
-            val fechaCita= LocalDate.parse(cita.fecha ?:"")
-            fechaCita.isBefore(LocalDate.now())
-        }catch (e: Exception){
-            false
-        }
+        runCatching {
+            LocalDate.parse(cita.fecha).isBefore(LocalDate.now())
+        }.getOrDefault(false)
     }
 
-    if(cargando){
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
+    when {
+        cargando -> Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             CircularProgressIndicator(color = Color(0xFF00CBA9))
         }
-    }else if(historial.isEmpty()){
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
+
+        historial.isEmpty() -> Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Text("No hay citas en el historial", color = Color.Gray)
         }
-    }else{
-        LazyColumn(
+
+        else -> LazyColumn(
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
-        ){
-            items(historial){ cita ->
-                CitaCard(cita, historial=true)
+        ) {
+            items(historial) { cita ->
+                CitaCard(cita, historial = true)
             }
         }
     }
 }
 
-
-
-
 @Composable
 fun CitaCard(cita: Cita, historial: Boolean = false) {
-    val colorTipo = when (cita.tipo){
+    val colorTipo = when (cita.tipo) {
         "Teleconsulta" -> Color(0xFF007AFF)
         "Presencial" -> Color(0xFF00CBA9)
         "Completada" -> Color.Gray
@@ -205,10 +199,10 @@ fun CitaCard(cita: Cita, historial: Boolean = false) {
                     .clip(CircleShape)
                     .background(Color(0xFFEAEAEA)),
                 contentAlignment = Alignment.Center
-            ){
+            ) {
                 Icon(
                     imageVector = Icons.Default.Person,
-                    contentDescription = "Profile",
+                    contentDescription = null,
                     tint = Color.Gray,
                     modifier = Modifier.size(35.dp)
                 )
@@ -216,7 +210,7 @@ fun CitaCard(cita: Cita, historial: Boolean = false) {
 
             Spacer(modifier = Modifier.width(12.dp))
 
-            Column(modifier = Modifier.weight(1f)){
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = cita.doctor,
                     style = MaterialTheme.typography.titleMedium,
@@ -230,7 +224,7 @@ fun CitaCard(cita: Cita, historial: Boolean = false) {
                     fontSize = 15.sp
                 )
 
-                Row(verticalAlignment = Alignment.CenterVertically){
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         imageVector = Icons.Default.DateRange,
                         contentDescription = null,
@@ -240,11 +234,7 @@ fun CitaCard(cita: Cita, historial: Boolean = false) {
 
                     Spacer(modifier = Modifier.width(4.dp))
 
-                    Text(
-                        cita.fecha ?:"Sin fecha",
-                        color = Color.Gray,
-                        fontSize = 13.sp
-                    )
+                    Text(cita.fecha, color = Color.Gray, fontSize = 13.sp)
 
                     Spacer(modifier = Modifier.width(8.dp))
 
@@ -257,23 +247,18 @@ fun CitaCard(cita: Cita, historial: Boolean = false) {
 
                     Spacer(modifier = Modifier.width(4.dp))
 
-                    Text(
-                        cita.hora, color = Color.Gray, fontSize = 13.sp
-                    )
+                    Text(cita.hora, color = Color.Gray, fontSize = 13.sp)
                 }
 
                 Spacer(modifier = Modifier.width(2.dp))
 
-                Row(verticalAlignment = Alignment.CenterVertically){
-                    val icon= if(cita.tipo == "Teleconsulta")
-                        Icons.Default.Call
-                    else
-                        Icons.Default.Place
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    val icon = if (cita.tipo == "Teleconsulta") Icons.Default.Call else Icons.Default.Place
 
                     Icon(
                         imageVector = icon,
                         contentDescription = null,
-                        tint=colorTipo,
+                        tint = colorTipo,
                         modifier = Modifier.size(14.dp)
                     )
 
@@ -293,46 +278,29 @@ fun CitaCard(cita: Cita, historial: Boolean = false) {
             if (!historial) {
                 Column(
                     horizontalAlignment = Alignment.End,
-                    verticalArrangement = Arrangement.spacedBy(6.dp)){
-
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
                     Button(
-                        onClick = {/**/},
+                        onClick = { /* Acción Unirse */ },
                         colors = ButtonDefaults.buttonColors(containerColor = colorTipo),
                         shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier
-                            .height(36.dp)
-                            .width(102.dp)
+                        modifier = Modifier.height(36.dp).width(102.dp)
                     ) {
-                        Text(
-                            "Unirse",
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Medium
-                        )
+                        Text("Unirse", fontSize = 14.sp, fontWeight = FontWeight.Medium)
                     }
                     OutlinedButton(
-                        onClick = {/**/},
+                        onClick = { /* Acción Mensaje */ },
                         shape = RoundedCornerShape(8.dp),
-                        border = BorderStroke(1.dp,Color.LightGray),
-                        modifier = Modifier
-                            .height(36.dp)
-                            .width(102.dp)
+                        border = BorderStroke(1.dp, Color.LightGray),
+                        modifier = Modifier.height(36.dp).width(102.dp)
                     ) {
                         Text("Mensaje", fontSize = 14.sp, color = Color.Black)
                     }
                 }
             } else {
-
                 Spacer(modifier = Modifier.height(10.dp))
-
-                Text(
-                    text = "Completada",
-                    color = colorTipo,
-                    fontWeight = FontWeight.Bold
-                )
+                Text(text = "Completada", color = colorTipo, fontWeight = FontWeight.Bold)
             }
         }
     }
 }
-
-
-
