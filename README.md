@@ -112,7 +112,7 @@ Personas entre 18 y 60 años, con acceso a dispositivos móviles, que buscan con
 
 ---
 
-## 🎬 Video Pitch (5–7 minutos)
+## 🎬 Video Pitch 
 
 🎥 [**Ver presentación en YouTube (Pitch Final)**](https://youtu.be/YEp0QA5TWrI?si=P0JKo04ypbyDsluU)
 
