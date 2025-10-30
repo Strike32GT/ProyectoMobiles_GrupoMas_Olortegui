@@ -1,6 +1,8 @@
 package com.mediturn.app.ui.screens
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.content.ContextWrapper
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -30,19 +32,48 @@ import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSiz
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
+import com.mediturn.app.data.model.Doctor
 
+
+
+fun Context.findActivity(): ComponentActivity{
+    var context = this
+    while (context is ContextWrapper){
+        if (context is ComponentActivity) return context
+        context = context.baseContext
+    }
+    throw IllegalStateException("No se encontro un component activity en el contexto")
+}
 @SuppressLint("ContextCastToActivity")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
 fun DoctorDetailScreen(navController: NavController) {
 
-
-    val windowSizeClass = calculateWindowSizeClass(activity = LocalContext.current as ComponentActivity)
+    val activity = LocalContext.current.findActivity()
+    val windowSizeClass = calculateWindowSizeClass(activity)
     val isCompact = remember { windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact }
     val horizontalPadding = if (isCompact) 20.dp else 80.dp
+    var doctor by remember { mutableStateOf<Doctor?>(null)}
+
+    LaunchedEffect(Unit) {
+        doctor = navController.previousBackStackEntry
+            ?.savedStateHandle
+            ?.get<Doctor>("doctor")
+    }
+
+    if(doctor == null){
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
+            CircularProgressIndicator(color = Color(0xFF00C6AE))
+        }
+        return
+    }
 
     Scaffold(
         topBar = {
@@ -126,13 +157,13 @@ fun DoctorDetailScreen(navController: NavController) {
                         modifier = Modifier.weight(1f)
                     ) {
                         Text(
-                            "Dr. Carlos Mendoza",
+                            doctor?.nombre?:"",
                             fontWeight = FontWeight.Bold,
                             fontSize = 18.sp,
                             color = Color(0xFF1B1B1B)
                         )
                         Text(
-                            "Cardiología",
+                            doctor?.especialidad?:"",
                             color = Color(0xFF00A88B),
                             fontSize = 14.sp
                         )
@@ -162,7 +193,7 @@ fun DoctorDetailScreen(navController: NavController) {
                     .padding(horizontal = horizontalPadding),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                InfoCard(icon = R.drawable.ic_experience, title = "Experiencia", value = "15 años")
+                InfoCard(icon = R.drawable.ic_experience, title = "Experiencia", value = "${doctor?.experiencia?:""}")
                 InfoCard(icon = R.drawable.ic_location, title = "Hospital", value = "Central")
                 InfoCard(icon = R.drawable.ic_language, title = "Idiomas", value = "2")
             }

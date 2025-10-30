@@ -4,8 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mediturn.app.data.model.Doctor
 import com.mediturn.app.data.repository.DoctorRepository
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class DoctorViewModel(private val repository: DoctorRepository) : ViewModel() {
@@ -13,17 +15,20 @@ class DoctorViewModel(private val repository: DoctorRepository) : ViewModel() {
     private val _doctores = MutableStateFlow<List<Doctor>>(emptyList())
     val doctores: StateFlow<List<Doctor>> get() = _doctores
 
+
     private val _cargando = MutableStateFlow(false)
     val cargando: StateFlow<Boolean> get() = _cargando
+    private var currentJob: Job? = null
 
     /**
      * 🔹 Cargar todos los doctores desde la base de datos (Room)
      */
     fun loadDoctores() {
-        viewModelScope.launch {
+        currentJob?.cancel()
+        currentJob = viewModelScope.launch {
             _cargando.value = true
             try {
-                repository.getAllDoctors().collect { lista ->
+                repository.getAllDoctors().collectLatest { lista ->
                     _doctores.value = lista
                 }
             } catch (e: Exception) {
@@ -38,10 +43,11 @@ class DoctorViewModel(private val repository: DoctorRepository) : ViewModel() {
      * 🔹 Buscar doctores por nombre o especialidad
      */
     fun buscarDoctores(query: String) {
-        viewModelScope.launch {
+        currentJob?.cancel()
+        currentJob = viewModelScope.launch {
             _cargando.value = true
             try {
-                repository.searchDoctors(query).collect { lista ->
+                repository.searchDoctors(query).collectLatest { lista ->
                     _doctores.value = lista
                 }
             } catch (e: Exception) {

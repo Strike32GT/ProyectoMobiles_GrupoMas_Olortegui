@@ -20,11 +20,18 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -34,6 +41,7 @@ import com.mediturn.app.ui.components.BottomNavBar
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun HomeMediTurn(navController: NavController) {
+    var searchQuery by remember { mutableStateOf("") }
     Scaffold(
         bottomBar = { BottomNavBar(navController, "home") }
     ) { padding ->
@@ -91,8 +99,8 @@ fun HomeMediTurn(navController: NavController) {
 
                     // 🔍 Barra de búsqueda
                     OutlinedTextField(
-                        value = "",
-                        onValueChange = {},
+                        value = searchQuery,
+                        onValueChange = {searchQuery = it},
                         placeholder = { Text("Buscar médico o especialidad...") },
                         leadingIcon = {
                             Icon(
@@ -110,6 +118,17 @@ fun HomeMediTurn(navController: NavController) {
                             focusedContainerColor = Color.White,
                             unfocusedBorderColor = Color.Transparent,
                             focusedBorderColor = Color.Transparent
+                        ),
+                        singleLine = true,
+                        keyboardActions = KeyboardActions(
+                            onDone = {
+                                if (searchQuery.isNotBlank()){
+                                    navController.navigate("doctors?query=${searchQuery}")
+                                }
+                            }
+                        ),
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            imeAction = ImeAction.Done
                         )
                     )
                 }

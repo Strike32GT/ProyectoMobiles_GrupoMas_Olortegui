@@ -17,14 +17,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.mediturn.app.data.database.MediturnDatabase
+import com.mediturn.app.data.model.Doctor
 import com.mediturn.app.data.repository.DoctorRepository
 import com.mediturn.app.ui.components.DoctorCard
 import com.mediturn.app.viewmodel.DoctorViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DoctorsScreen(navController: NavController) {
+fun DoctorsScreen(navController: NavController, initialQuery: String? = null) {
 
 
     val context = LocalContext.current
@@ -35,13 +37,80 @@ fun DoctorsScreen(navController: NavController) {
     // 🔹 Estado UI
     val doctores by viewModel.doctores.collectAsState()
     val cargando by viewModel.cargando.collectAsState()
-    var searchQuery by remember { mutableStateOf("") }
+    var searchQuery by remember { mutableStateOf(initialQuery ?: "") }
 
     val coroutineScope = rememberCoroutineScope()
 
     // 🔹 Cargar lista al iniciar pantalla
     LaunchedEffect(Unit) {
         viewModel.loadDoctores()
+        delay(500)
+
+        val listaActual=viewModel.doctores.value
+
+        if(listaActual.isEmpty()){
+            viewModel.agregarDoctor(
+                Doctor(
+                    nombre = "Dr. Carlos Mendoza",
+                    especialidad = "Cardiologia",
+                    experiencia = 8,
+                    horario = "9:00 - 15:00",
+                    precio = 150.0
+                )
+            )
+
+            viewModel.agregarDoctor(
+                Doctor(
+                    nombre = "Dra. María Gonzales",
+                    especialidad = "Pediatria",
+                    experiencia = 10,
+                    horario = "10:00 - 17:00",
+                    precio = 120.0
+                )
+            )
+
+            viewModel.agregarDoctor(
+                Doctor(
+                    nombre = "Dr. Jorge Ramirez",
+                    especialidad = "Neurologia",
+                    experiencia = 10,
+                    horario = "10:00 - 17:00",
+                    precio = 120.0
+                )
+            )
+
+            viewModel.agregarDoctor(
+                Doctor(
+                    nombre = "Dra. Ana Torres",
+                    especialidad = "Medicina General",
+                    experiencia = 7,
+                    horario = "8:00 - 17:00",
+                    precio = 120.0
+                )
+            )
+
+            viewModel.agregarDoctor(
+                Doctor(
+                    nombre = "Dr. Luis Vargas",
+                    especialidad = "Oftalmologia",
+                    experiencia = 9,
+                    horario = "11:00 - 18:00",
+                    precio = 160.0
+                )
+            )
+        }
+        if(!searchQuery.isBlank()){
+            viewModel.buscarDoctores(searchQuery)
+        }
+    }
+
+    LaunchedEffect(searchQuery) {
+        delay(300)
+        if(searchQuery.isBlank()){
+            viewModel.loadDoctores()
+        }else{
+            viewModel.buscarDoctores(searchQuery)
+        }
     }
 
     Scaffold(
@@ -90,13 +159,6 @@ fun DoctorsScreen(navController: NavController) {
                 value = searchQuery,
                 onValueChange = {
                     searchQuery = it
-                    coroutineScope.launch {
-                        if (searchQuery.isBlank()) {
-                            viewModel.loadDoctores()
-                        } else {
-                            viewModel.buscarDoctores(searchQuery)
-                        }
-                    }
                 },
                 label = { Text("Buscar por nombre o especialidad") },
                 singleLine = true,
@@ -150,7 +212,8 @@ fun DoctorsScreen(navController: NavController) {
                                 price = "S/${doctor.precio}",
                                 onClick = {
                                     // 🔹 Navegar al detalle del médico
-                                    navController.navigate("doctor_detail")
+                                    navController.currentBackStackEntry?.savedStateHandle?.set("doctor", doctor)
+                                    navController.navigate("detail")
                                 }
                             )
                         }

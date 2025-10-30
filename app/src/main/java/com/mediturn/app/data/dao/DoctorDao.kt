@@ -10,7 +10,7 @@ interface DoctorDao {
     @Query("SELECT * FROM doctors ORDER BY nombre ASC")
     fun getAllDoctors(): Flow<List<Doctor>>
 
-    @Query("SELECT * FROM doctors WHERE nombre LIKE :query OR especialidad LIKE :query")
+    @Query("SELECT * FROM doctors WHERE nombre LIKE :query OR especialidad LIKE :query ORDER BY nombre ASC")
     fun searchDoctors(query: String): Flow<List<Doctor>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

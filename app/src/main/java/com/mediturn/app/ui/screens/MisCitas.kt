@@ -2,6 +2,7 @@ package com.mediturn.app.ui.screens
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -24,20 +25,51 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.mediturn.app.data.database.MediturnDatabase
 import com.mediturn.app.data.model.Cita
 import com.mediturn.app.data.repository.CitaRepository
 import com.mediturn.app.viewmodel.CitaViewModel
+import kotlinx.coroutines.delay
 import java.time.LocalDate
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MisCitas() {
+fun MisCitas(navController: NavController) {
     val context = LocalContext.current
     val db by remember { mutableStateOf(MediturnDatabase.getDataBase(context)) }
     val citaDao = remember(db) { db.citaDao() }
     val repository = remember { CitaRepository(citaDao) }
     val citaViewModel = remember { CitaViewModel(repository) }
+
+    LaunchedEffect(Unit) {
+        citaViewModel.loadCitas()
+        delay(500)
+        if(citaViewModel.citas.value.isEmpty()){
+            citaViewModel.agregarCita(
+                doctor = "Dr Juan",
+                especialidad = "Cardiologia",
+                hora = "10:30 AM",
+                tipo = "Presencial",
+                fecha = LocalDate.now().minusDays(3).toString()
+            )
+
+            citaViewModel.agregarCita(
+                doctor = "Dra. Maria Lopez",
+                especialidad = "Dermatologia",
+                hora = "11:00 AM",
+                tipo = "Teleconsulta"
+            )
+
+            citaViewModel.agregarCita(
+                doctor = "Dr. Ricardo Gutiérrez",
+                especialidad = "Pediatría",
+                hora = "3:30 PM",
+                tipo = "Presencial"
+            )
+
+        }
+    }
 
     var selectTab by remember { mutableIntStateOf(0) }
     val tabs = listOf("Próximas", "Historial")
@@ -69,9 +101,35 @@ fun MisCitas() {
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceAround
                 ) {
-                    Text("Inicio", color = Color.Gray)
-                    Text("Citas", color = Color(0xFF00CBA9), fontWeight = FontWeight.Bold)
-                    Text("Perfil", color = Color.Gray)
+                    Text(
+                        "Inicio",
+                        color = Color.Gray,
+                        modifier = Modifier
+                            .clickable{
+                                navController.navigate("home"){
+                                    popUpTo("home"){inclusive = true}
+                                }
+                            }
+                    )
+                    Text(
+                        "Citas",
+                        color = Color(0xFF00CBA9),
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                            .clickable{
+                                navController.navigate("citas"){
+                                    popUpTo("home"){inclusive=false}
+                                }
+                            })
+                    Text(
+                        "Perfil",
+                        color = Color.Gray,
+                        modifier = Modifier
+                            .clickable{
+                                navController.navigate("perfil"){
+                                    popUpTo("home"){inclusive=false}
+                                }
+                            })
                 }
             }
         }
@@ -121,6 +179,12 @@ fun CitasProximas(viewModel: CitaViewModel) {
 
     LaunchedEffect(Unit) { viewModel.loadCitas() }
 
+    val proximas = citas.filter { cita ->
+        runCatching {
+            !LocalDate.parse(cita.fecha).isBefore(LocalDate.now())
+        }.getOrDefault(false)
+    }
+
     when {
         cargando -> Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             CircularProgressIndicator(color = Color(0xFF00CBA9))
@@ -134,7 +198,7 @@ fun CitasProximas(viewModel: CitaViewModel) {
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            items(citas) { cita ->
+            items(proximas) { cita ->
                 CitaCard(cita)
             }
         }

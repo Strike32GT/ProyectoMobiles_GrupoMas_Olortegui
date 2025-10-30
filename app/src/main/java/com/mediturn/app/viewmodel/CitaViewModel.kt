@@ -27,9 +27,9 @@ class CitaViewModel(private val repository: CitaRepository) : ViewModel() {
         }
     }
 
-    fun agregarCita(doctor: String, especialidad: String, hora: String, tipo: String) {
+    fun agregarCita(doctor: String, especialidad: String, hora: String, tipo: String, fecha : String = LocalDate.now().format(
+        DateTimeFormatter.ISO_LOCAL_DATE)) {
         viewModelScope.launch {
-            val fecha = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
             val nuevaCita = Cita(
                 doctor = doctor,
                 especialidad = especialidad,
