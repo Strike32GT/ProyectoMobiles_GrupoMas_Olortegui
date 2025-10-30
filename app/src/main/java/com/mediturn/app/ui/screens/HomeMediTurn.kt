@@ -52,7 +52,7 @@ fun HomeMediTurn(navController: NavController) {
                 .verticalScroll(rememberScrollState())
                 .background(Color(0xFFF6F9FC))
         ) {
-            // 🔷 Encabezado con gradiente
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()

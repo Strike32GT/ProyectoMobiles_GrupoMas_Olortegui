@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "citas")
 data class Cita(
     @PrimaryKey(autoGenerate = true)
-    val id: Int =0,
+    val id: Int = 0,
 
     @ColumnInfo(name = "doctor")
     val doctor: String,

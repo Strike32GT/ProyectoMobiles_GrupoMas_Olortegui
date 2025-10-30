@@ -87,6 +87,38 @@ Personas entre 18 y 60 años, con acceso a dispositivos móviles, que buscan con
 **Prioridad:** Baja  
 **Criterio de aceptación:** Se muestra un bloque “Consejo del día” en la pantalla principal.
 
+## 🧩 Flujo General del Proyecto
+
+1. **Inicio (Home):** Pantalla con buscador, especialidades y botones de acceso.  
+2. **Doctores:** Lista de médicos cargados desde la base de datos.  
+3. **Detalle del Médico:** Información ampliada del profesional.  
+4. **Mis Citas:** Próximas citas y citas pasadas con filtros por fecha.  
+5. **Perfil:** Datos personales, estadísticas y opciones de cuenta.  
+6. **Navegación Inferior:** Menú persistente con accesos directos.
+
+---
+
+## 🧠 Arquitectura Funcional
+
+- **MVVM (Model–View–ViewModel)**  
+  - `Model` → Entidades y repositorios (Room)  
+  - `View` → Pantallas en Compose  
+  - `ViewModel` → Lógica y manejo del estado con *StateFlow*
+
+- **Room Database:** Persistencia local para doctores y citas  
+- **Jetpack Compose:** Interfaz declarativa y reactiva  
+- **Navigation Compose:** Sistema de rutas entre pantallas  
+- **Material3:** Estilo visual moderno
+
+---
+
+## 🎬 Video Pitch (5–7 minutos)
+
+🎥 [**Ver presentación en YouTube (Pitch Final)**](https://youtu.be/YEp0QA5TWrI?si=P0JKo04ypbyDsluU)
+
+> Explicación general del flujo, pantallas principales y base de datos funcional (Room + Compose).
+
+---
 
 
 ## 🎬 Dia 2: demostracion del Proyecto
@@ -114,3 +146,16 @@ Personas entre 18 y 60 años, con acceso a dispositivos móviles, que buscan con
 | <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" width="30"/> **GitHub** | Control de versiones y colaboración. |
 
 
+---
+
+## 🏁 Release Final
+
+📦 **Versión:** v1.0  
+🗓️ **Fecha:** Octubre 2025  
+🔗 [**Repositorio GitHub**](https://github.com/Strike32GT/ProyectoMobiles_GrupoMas_Olortegui)
+
+
+---
+
+✅ **Resumen del Release v1.0:**  
+Primera versión funcional de *MediTurn*: búsqueda de médicos, gestión de citas, detalle del profesional y pantalla de perfil, todo implementado con **Jetpack Compose + Room Database**.
